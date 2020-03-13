@@ -35,6 +35,10 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             textOutput('imgID'),
+            radioButtons(inputId = 'plantFocus',
+                         inline = TRUE,
+                         label = 'Is a plant the focus of the image?',
+                         choices = c('Yes', 'No', 'IDK')),
             checkboxInput(inputId = 'plantIDable',
                           label = 'Is a plant species identifiable?',
                           value = FALSE),
@@ -142,6 +146,7 @@ server <- function(input, output, session) {
       if(!imgID() %in% done$rand_id){
         
         x <- ids[ids$rand_id == imgID(), ]
+        x$plantFocus <- input$plantFocus
         x$plantIDable <- input$plantIDable
         x$plantIDcorrect <- paste(input$plantIDcorrect, collapse = ';')
         x$status_cat <- input$status_cat
@@ -161,9 +166,11 @@ server <- function(input, output, session) {
       } else {
         
         done[done$rand_id == imgID(),
-             c('plantIDable', 'plantIDcorrect',
+             c('plantFocus', 'plantIDable',
+               'plantIDcorrect',
                'status_cat', 'plantHort',
-               'comment')] <- c(input$plantIDable,
+               'comment')] <- c(input$plantFocus,
+                                input$plantIDable,
                                 input$plantIDcorrect,
                                 input$status_cat,
                                 input$plantHort,
@@ -179,7 +186,12 @@ server <- function(input, output, session) {
         nv <- min(ids$rand_id[ids$rand_id > imgID()])
         imgID(nv) 
       }
-        
+      
+      updateRadioButtons(session = session,
+                         inputId = 'plantFocus',
+                         inline = TRUE,
+                         label = 'Is a plnt the focus of the image?',
+                         choices = c('Yes', 'No', 'IDK'))
       updateCheckboxGroupInput(session = session, 
                                inputId = 'plantIDcorrect',
                                choices = c('Family', 'Genus', 'Species'))
